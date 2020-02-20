@@ -39,6 +39,7 @@ let BorderCategory : UInt32 = 0x1 << 4
 
 class GameScene: SKScene, SKPhysicsContactDelegate
 {
+  var lvl = 1
   var isFingerOnPaddle = false
   lazy var gameState: GKStateMachine = GKStateMachine(states: [
   WaitingForTap(scene: self),
@@ -101,21 +102,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     // 2
     let xOffset = (frame.width - totalBlocksWidth) / 2
     // 3
-    for i in 0..<numberOfBlocks
+    for j in 0..<lvl
     {
-      let block = SKSpriteNode(imageNamed: "block.png")
-      block.position = CGPoint(x: xOffset + CGFloat(CGFloat(i) + 0.5) * blockWidth,
-        y: frame.height * 0.8)
-          
-      block.physicsBody = SKPhysicsBody(rectangleOf: block.frame.size)
-      block.physicsBody!.allowsRotation = false
-      block.physicsBody!.friction = 0.0
-      block.physicsBody!.affectedByGravity = false
-      block.physicsBody!.isDynamic = false
-      block.name = BlockCategoryName
-      block.physicsBody!.categoryBitMask = BlockCategory
-      block.zPosition = 2
-      addChild(block)
+      for i in 0..<numberOfBlocks
+      {
+      
+        let block = SKSpriteNode(imageNamed: "block.png")
+        block.position = CGPoint(x: xOffset + CGFloat(CGFloat(i) + 0.5) * blockWidth,
+                                 y: frame.height * (0.8 - 0.12 * CGFloat(j)))
+      
+        block.physicsBody = SKPhysicsBody(rectangleOf: block.frame.size)
+        block.physicsBody!.allowsRotation = false
+        block.physicsBody!.friction = 0.0
+        block.physicsBody!.affectedByGravity = false
+        block.physicsBody!.isDynamic = false
+        block.name = BlockCategoryName
+        block.physicsBody!.categoryBitMask = BlockCategory
+        block.zPosition = 2
+        addChild(block)
+      }
     }
     
     let gameMessage = SKSpriteNode(imageNamed: "TapToPlay")
@@ -160,10 +165,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate
       }
     
     case is GameOver:
-    let newScene = GameScene(fileNamed:"GameScene")
-    newScene!.scaleMode = .aspectFit
-    let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
-    self.view?.presentScene(newScene!, transition: reveal)
+        let newScene = GameScene(fileNamed:"GameScene")
+        if gameWon
+        {
+            if lvl <= 3
+            {
+              newScene!.lvl = lvl + 1
+            }
+            else
+            {
+              newScene!.lvl = 4
+            }
+        }
+        newScene!.scaleMode = .aspectFit
+        let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
+        self.view?.presentScene(newScene!, transition: reveal)
         
     default:
       break
